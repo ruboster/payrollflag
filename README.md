@@ -1,29 +1,72 @@
-# Payroll Launch Risk Assessment System
+# Payroll Launch Risk Assessment Dashboard
 
-A tool to flag integration gaps, dependency risks, and missing steps before launching a payroll system.
-
-## Overview
-
-This system helps identify potential risks in the payroll launch process by analyzing task completion status and notes for risk indicators. It consists of:
-
-1. **Backend Risk Checker Script**: Python script that analyzes CSV data to identify incomplete tasks and risky notes.
-2. **Frontend Dashboard**: Web interface that displays flagged tasks, alerts, and a risk summary.
+A web-based dashboard for assessing and managing risks associated with payroll system launches.
 
 ## Features
 
-- Identifies incomplete tasks
-- Flags risky notes containing keywords like "assumed", "unverified", etc.
-- Displays a dashboard with color-coded risk levels
-- Shows Slack-style alerts for high-priority issues
-- Provides a summary of risk areas across departments
+### Data Import and Processing
+- CSV file upload functionality for payroll task data
+- Automatic parsing and processing of CSV data
+- Support for department, task, completion status, and notes fields
 
-## Getting Started
+### Risk Analysis
+- Automatic risk assessment based on task completion status
+- Keyword-based risk detection in task notes
+- Three-tier risk classification (high, medium, low)
+- Risk keywords detection for terms like "assumed", "unverified", "outdated", etc.
 
-### Prerequisites
+### Dashboard Overview
+- Summary cards showing key metrics:
+  - Incomplete tasks count
+  - High-risk issues count
+  - Medium-risk issues count
+- Percentage calculations of incomplete vs. total tasks
+- Visual indicators for risk levels
 
-- Python 3.6 or higher
-- Web browser (Chrome, Firefox, Safari, Edge)
+### Task Management
+- Department-based task grouping
+- Task status tracking (complete/incomplete)
+- Risk level indicators for each task
+- Detailed notes display for each task
 
-### Installation
+### Filtering and Search
+- Filter controls for viewing specific task categories:
+  - All tasks
+  - Incomplete tasks
+  - High-risk tasks
+  - Medium-risk tasks
+- Real-time search functionality for finding specific tasks
 
-1. Clone this repository:
+### Critical Issues Alerts
+- Automatic identification of high-risk incomplete tasks
+- Department-based alert grouping
+- Expandable alert details with suggestions
+- Comment system for team communication on alerts
+
+### QA Checklist
+- Interactive checklist for quality assurance
+- Department-based checklist organization
+- Task completion tracking
+- Status indicators for checklist items
+
+### Data Export
+- Export functionality for risk assessment data to CSV
+- Export alerts to CSV with suggested actions
+- Downloadable QA checklist
+
+### User Interface
+- Clean, modern interface with responsive design
+- Color-coded risk indicators
+- Expandable sections for detailed information
+- Mobile-friendly layout adjustments
+
+### Python Risk Analysis Integration
+- Backend Python script for advanced risk analysis
+- JSON and text output formats for analysis results
+- Integration with web dashboard
+
+## Technical Details
+- Built with vanilla JavaScript, HTML, and CSS
+- No external dependencies required
+- Client-side data processing for privacy
+- Responsive design for desktop and mobile devices
