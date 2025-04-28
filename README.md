@@ -4,21 +4,17 @@ A web-based dashboard for assessing and managing risks associated with payroll s
 
 ## Dashboard Screenshots
 
-### Main Dashboard View
-![Dashboard Header](dashboard_header.png)
-The main dashboard header provides quick access to upload CSV data and run quality assurance checks.
+### Dashboard Overview
+![Dashboard Overview](dashboard_header.png)
+The main dashboard provides quick access to upload CSV data and run quality assurance checks.
 
-### Risk Summary Cards
-![Risk Summary Cards](risk_summary.png)
+### Risk Summary
+![Risk Summary](risk_summary.png)
 Summary cards provide at-a-glance metrics of incomplete tasks and risk levels across the payroll system.
 
-### Detailed Risk Analysis
-![Risk Analysis](risk_analysis.png)
-The risk analysis section shows critical issues requiring immediate attention before proceeding with payroll launch.
-
-### Department-Based Task Management
-![Task Management](task_management.png)
-Tasks are organized by department with clear status indicators and risk levels for efficient tracking.
+### Critical Issues
+![Critical Issues](risk_analysis.png)
+The alerts section shows critical issues requiring immediate attention before proceeding with payroll launch.
 
 ## Features
 
