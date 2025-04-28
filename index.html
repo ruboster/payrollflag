@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payroll Launch Risk Assessment Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Payroll Launch Risk Assessment Dashboard</h1>
+            <div class="header-actions">
+                <div class="file-upload-container">
+                    <input type="file" id="csvFileInput" accept=".csv" class="file-input" />
+                    <label for="csvFileInput" class="file-label">Upload CSV</label>
+                    <span id="fileName" class="file-name"></span>
+                </div>
+                <button id="runQaCheck" class="primary-button">Run QA Check</button>
+            </div>
+        </header>
+        
+        <!-- Upload notification area - centered in page -->
+        <div id="uploadNotification" class="upload-notification">
+            <div class="notification-icon">⚠️</div>
+            <div class="notification-message">Please upload a CSV file to analyze payroll risks</div>
+        </div>
+        
+        <!-- Summary Cards Section -->
+        <div id="summaryCards" class="summary-cards hidden">
+            <div class="summary-card" id="incompleteTasksCard">
+                <div class="card-icon">❌</div>
+                <div class="card-content">
+                    <div class="card-value" id="incompleteTasksCount">0</div>
+                    <div class="card-label">Incomplete Tasks</div>
+                </div>
+            </div>
+            <div class="summary-card" id="highRiskCard">
+                <div class="card-icon">⚠️</div>
+                <div class="card-content">
+                    <div class="card-value" id="highRiskCount">0</div>
+                    <div class="card-label">High-Risk Issues</div>
+                </div>
+            </div>
+            <div class="summary-card" id="mediumRiskCard">
+                <div class="card-icon">⚠️</div>
+                <div class="card-content">
+                    <div class="card-value" id="mediumRiskCount">0</div>
+                    <div class="card-label">Medium-Risk Issues</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filter Controls -->
+        <div id="filterControls" class="filter-controls hidden">
+            <div class="filter-label">Filter by:</div>
+            <div class="filter-buttons">
+                <button id="showAllBtn" class="filter-button active">All Tasks</button>
+                <button id="showIncompleteBtn" class="filter-button">Incomplete</button>
+                <button id="showHighRiskBtn" class="filter-button">High Risk</button>
+                <button id="showMediumRiskBtn" class="filter-button">Medium Risk</button>
+            </div>
+        </div>
+        
+        <div id="summarySection" class="summary-section hidden">
+            <h2>Risk Summary</h2>
+            <p id="summaryText"></p>
+        </div>
+        
+        <div id="alertsContainer" class="alerts-container hidden">
+            <h2>Alerts</h2>
+            <div id="alerts" class="alerts"></div>
+        </div>
+        
+        <!-- QA Checklist Section -->
+        <div id="checklistSection" class="checklist-section hidden">
+            <div class="checklist-header">
+                <h2>QA Summary Checklist</h2>
+                <button id="downloadChecklist" class="secondary-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download Checklist
+                </button>
+            </div>
+            <div id="checklistContainer" class="checklist-container">
+                <!-- Checklist items will be added here dynamically -->
+            </div>
+        </div>
+        
+        <div class="results-section">
+            <h2>Flagged Tasks</h2>
+            <div class="results-actions">
+                <button id="exportCsv" class="secondary-button" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Export CSV
+                </button>
+            </div>
+            <div class="table-container">
+                <table id="risksTable">
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th>Task</th>
+                            <th>Status</th>
+                            <th>Risk Level</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="risksTableBody">
+                        <!-- Table rows will be added here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
