@@ -28,15 +28,28 @@ document.addEventListener('DOMContentLoaded', function() {
         const file = e.target.files[0];
         if (file) {
             fileName.textContent = file.name;
+            fileName.style.display = 'block';
             
             const reader = new FileReader();
             reader.onload = function(event) {
                 const csvData = event.target.result;
                 uploadedData = parseCSV(csvData);
                 
-                // Hide the upload notification once a file is uploaded
-                uploadNotification.style.display = 'none';
+                // Show success message
+                uploadNotification.textContent = '✅ File uploaded successfully! Click "Run QA Check" to analyze.';
+                uploadNotification.style.color = 'green';
+                
+                // Enable the QA check button
+                if (runQaCheckButton) {
+                    runQaCheckButton.disabled = false;
+                }
             };
+            
+            reader.onerror = function() {
+                uploadNotification.textContent = '❌ Error reading file!';
+                uploadNotification.style.color = 'red';
+            };
+            
             reader.readAsText(file);
         }
     });
@@ -44,18 +57,38 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to parse CSV data
     function parseCSV(csvText) {
         const lines = csvText.split('\n');
-        const headers = lines[0].split(',');
+        const headers = lines[0].split(',').map(header => header.trim());
         
         const result = [];
         
         for (let i = 1; i < lines.length; i++) {
             if (lines[i].trim() === '') continue;
             
-            const values = lines[i].split(',');
-            const entry = {};
+            // Handle quoted values with commas inside them
+            const row = [];
+            let inQuotes = false;
+            let currentValue = '';
             
+            for (let char of lines[i]) {
+                if (char === '"' && !inQuotes) {
+                    inQuotes = true;
+                } else if (char === '"' && inQuotes) {
+                    inQuotes = false;
+                } else if (char === ',' && !inQuotes) {
+                    row.push(currentValue.trim());
+                    currentValue = '';
+                } else {
+                    currentValue += char;
+                }
+            }
+            
+            // Add the last value
+            row.push(currentValue.trim());
+            
+            // Create object from headers and values
+            const entry = {};
             for (let j = 0; j < headers.length; j++) {
-                entry[headers[j].trim()] = values[j] ? values[j].trim() : '';
+                entry[headers[j]] = j < row.length ? row[j] : '';
             }
             
             result.push(entry);
@@ -559,108 +592,84 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Event listener for the "Run QA Check" button
     runQaCheckButton.addEventListener('click', function() {
-        // Check if CSV file is uploaded
-        if (!uploadedData || uploadedData.length === 0) {
-            // Show the upload notification in the middle of the page
-            uploadNotification.style.display = 'block';
+        // Run QA check when button is clicked
+        runQaCheckButton.addEventListener('click', function() {
+            if (!uploadedData || uploadedData.length === 0) {
+                alert('Please upload a CSV file first.');
+                return;
+            }
             
-            // Scroll to the notification to ensure it's visible
-            uploadNotification.scrollIntoView({ behavior: 'smooth' });
+            // Analyze risks
+            currentRiskData = analyzeRisks(uploadedData);
             
-            return;
-        }
-        
-        // Hide the notification if a file is uploaded
-        uploadNotification.style.display = 'none';
-        
-        // Analyze the uploaded data
-        const dataToAnalyze = analyzeRisks(uploadedData);
-        
-        // Store the current risk data for export
-        currentRiskData = dataToAnalyze;
-        
-        // Check if any risks were found
-        if (dataToAnalyze.length === 0) {
-            // Clear any previous results
-            risksTableBody.innerHTML = '';
-            summarySection.classList.add('hidden');
-            alertsContainer.classList.add('hidden');
-            exportCsvButton.disabled = true;
+            // Display summary
+            displaySummary(currentRiskData);
             
-            return;
-        }
-        
-        // Generate alerts based on high-risk items
-        const alertsToShow = generateAlerts(dataToAnalyze);
-        
-        // Display the results
-        populateRisksTable(dataToAnalyze);
-        displayAlerts(alertsToShow);
-        displaySummary(dataToAnalyze);
-        
-        // Enable the export button
-        exportCsvButton.disabled = false;
-        
-        // Change button text to indicate refresh capability
-        runQaCheckButton.textContent = 'Refresh QA Check';
+            // Populate table
+            populateRisksTable(currentRiskData);
+            
+            // Generate and display alerts
+            const alerts = generateAlerts(currentRiskData);
+            displayAlerts(alerts);
+            
+            // Show the results section
+            document.querySelector('.results-section').classList.remove('hidden');
+            
+            // Enable export button
+            if (exportCsvButton) {
+                exportCsvButton.disabled = false;
+            }
+        });
     });
     
-    // ... Add search functionality ...
-    function addSearchBox() {
-        const searchContainer = document.createElement('div');
-        searchContainer.className = 'search-container';
-        
-        const searchInput = document.createElement('input');
-        searchInput.type = 'text';
-        searchInput.id = 'searchInput';
-        searchInput.placeholder = 'Search tasks...';
-        searchInput.className = 'search-input';
-        
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
+    // Export CSV when button is clicked
+    if (exportCsvButton) {
+        exportCsvButton.addEventListener('click', function() {
+            if (!currentRiskData || currentRiskData.length === 0) {
+                alert('No data to export.');
+                return;
+            }
             
-            // Filter the table rows
-            const rows = risksTableBody.querySelectorAll('tr:not(.department-header)');
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-            
-            // Show/hide department headers based on visible rows
-            const departmentHeaders = risksTableBody.querySelectorAll('tr.department-header');
-            departmentHeaders.forEach(header => {
-                let nextElement = header.nextElementSibling;
-                let hasVisibleRows = false;
-                
-                while (nextElement && !nextElement.classList.contains('department-header')) {
-                    if (nextElement.style.display !== 'none') {
-                        hasVisibleRows = true;
-                        break;
-                    }
-                    nextElement = nextElement.nextElementSibling;
-                }
-                
-                header.style.display = hasVisibleRows ? '' : 'none';
-            });
+            const csvContent = convertToCSV(currentRiskData);
+            const date = new Date().toISOString().slice(0, 10);
+            downloadCSV(csvContent, `payroll-risks-${date}.csv`);
         });
-        
-        searchContainer.appendChild(searchInput);
-        
-        // Add before the table
-        const tableContainer = document.querySelector('.results-table');
-        tableContainer.parentNode.insertBefore(searchContainer, tableContainer);
     }
     
-    // Add this to your runQaCheck function
-    runQaCheckButton.addEventListener('click', function() {
-        // ... existing code ...
-        
-        // Add search box
-        addSearchBox();
-        
-        // ... existing code ...
+    // Export CSV when export button is clicked
+    exportCsvButton.addEventListener('click', function() {
+        if (currentRiskData.length === 0) {
+            alert('No data to export. Please run QA check first.');
+            return;
+        }
+    
+        const csvContent = convertToCSV(currentRiskData);
+        const date = new Date().toISOString().slice(0, 10);
+        downloadCSV(csvContent, `payroll-qa-report-${date}.csv`);
+    });
 });
+
+// Function to add sample CSV template link
+function addSampleCsvTemplate() {
+    const sampleLink = document.createElement('a');
+    sampleLink.textContent = 'Download Sample CSV Template';
+    sampleLink.className = 'sample-link';
+    sampleLink.href = '#';
+    sampleLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const sampleContent = 'Department,Task,Task_Completed,Notes\n' +
+            'HR,Verify employee data,No,Some data seems outdated\n' +
+            'Finance,Confirm budget allocation,Yes,Budget approved on 5/10\n' +
+            'IT,Test system integration,No,Found critical issues with API\n' +
+            'HR,Update employee handbook,Yes,Completed and verified';
+        
+        downloadCSV(sampleContent, 'payroll-tasks-template.csv');
+    });
+    
+    // Add near the file input
+    csvFileInput.parentNode.insertBefore(sampleLink, csvFileInput.nextSibling);
+}
+
+// Call this function when the page loads
+addSampleCsvTemplate();
